@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.MainActivity">
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="154dp"
+        android:layout_height="0dp"
+        android:backgroundTint="#560A0A"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="#560A0A"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonDownload"
+            app:layout_constraintTop_toBottomOf="@+id/buttonDownload">
+
+            <Button
+                android:id="@+id/buttonDownload"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/download_48dp_fill0_wght400_grad0_opsz48"
+                android:drawableTint="#FFFFFF"
+                android:padding="8dp"
+                android:text="DOWNLOAD"
+                app:cornerRadius="0dp"
+                app:layout_constraintBottom_toTopOf="@+id/buttonFiles"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintVertical_chainStyle="packed"
+                tools:ignore="SpeakableTextPresentCheck"
+                tools:layout_conversion_absoluteHeight="72dp"
+                tools:layout_conversion_absoluteWidth="149dp" />
+
+            <Button
+                android:id="@+id/buttonFiles"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/folder_48dp_fill0_wght400_grad0_opsz48"
+                android:padding="8dp"
+                android:text="FILES"
+                app:cornerRadius="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/buttonDownload"
+                tools:ignore="SpeakableTextPresentCheck"
+                tools:layout_conversion_absoluteHeight="72dp"
+                tools:layout_conversion_absoluteWidth="149dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.navigation.NavigationView>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView"
+        android:name="br.dev.saed.silverdownloader.view.DownloadFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/navigationView"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

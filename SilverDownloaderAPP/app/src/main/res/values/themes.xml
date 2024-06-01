@@ -1,0 +1,14 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.SilverDownloader" parent="Theme.Material3.DayNight.NoActionBar">
+       <item name="colorPrimary">@color/colorPrimary</item>
+       <item name="colorOnPrimary">@color/colorOnPrimary</item>
+       <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+       <item name="colorSecondary">@color/colorSecondary</item>
+       <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
+       <item name="colorOnSecondary">@color/black</item>
+       <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <style name="Theme.SilverDownloader" parent="Base.Theme.SilverDownloader" />
+</resources>
