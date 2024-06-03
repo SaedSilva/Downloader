@@ -7,6 +7,18 @@
     android:layout_height="match_parent"
     tools:context=".view.MainActivity">
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView"
+        android:name="br.dev.saed.silverdownloader.view.DownloadFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout="@layout/fragment_download" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="0dp"
@@ -31,6 +43,7 @@
                 android:drawableTint="#FFFFFF"
                 android:padding="8dp"
                 android:text="DOWNLOAD"
+                app:cornerRadius="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/buttonFiles"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -45,6 +58,7 @@
                 android:drawableTop="@drawable/folder_24dp_fill0_wght400_grad0_opsz24"
                 android:padding="8dp"
                 android:text="FILES"
+                app:cornerRadius="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/buttonAdd"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -60,6 +74,7 @@
                 android:drawableTint="#FFFFFF"
                 android:padding="8dp"
                 android:text="ADD"
+                app:cornerRadius="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -69,16 +84,5 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.bottomnavigation.BottomNavigationView>
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainerView"
-        android:name="br.dev.saed.silverdownloader.view.DownloadFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
