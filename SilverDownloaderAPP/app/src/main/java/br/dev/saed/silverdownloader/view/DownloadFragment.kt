@@ -1,7 +1,11 @@
 package br.dev.saed.silverdownloader.view
 
 import android.Manifest
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -12,6 +16,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.CookieManager
+import android.webkit.URLUtil
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -22,9 +29,11 @@ import br.dev.saed.silverdownloader.api.RetrofitHelper
 import br.dev.saed.silverdownloader.databinding.FragmentDownloadBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
+
 
 class DownloadFragment : Fragment() {
     private val binding by lazy {
@@ -34,7 +43,21 @@ class DownloadFragment : Fragment() {
         RetrofitHelper.retrofit
     }
 
-    private val requestPermissionLauncher =
+    private var downloadId: Long? = null
+
+    private val onDownloadComplete: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            if (downloadId != null) {
+                if (downloadId == id) {
+                    Toast.makeText(requireContext(), "Download Finalizado", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+
+    private val requestPermissionLauncher by lazy {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
                 Log.i("Permission", "Granted")
@@ -42,15 +65,17 @@ class DownloadFragment : Fragment() {
                 Log.i("Permission", "Denied")
             }
         }
-
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requireActivity().registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
+
         requestManagePermission()
         binding.buttonDownloadFrag.setOnClickListener {
             requestManagePermission()
@@ -58,7 +83,10 @@ class DownloadFragment : Fragment() {
                 binding.editCodigo.error = "Digite o código"
             } else if (binding.editCodigo.text.toString().toInt() in 10000..99999) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    getDownloadLink(binding.editCodigo.text.toString().toInt())
+                    val url = async {
+                        getDownloadLink(binding.editCodigo.text.toString().toInt())
+                    }
+                    downloadFile(url.await().toString())
                 }
             } else {
                 binding.editCodigo.error = "Código inválido"
@@ -67,11 +95,40 @@ class DownloadFragment : Fragment() {
         return binding.root
     }
 
-    private fun requestManagePermission() {
-        if(isDirectToTV() && Build.VERSION.SDK_INT <= 32) {
-            requestRuntimePermissions()
+    override fun onDestroy() {
+        super.onDestroy()
+        requireActivity().unregisterReceiver(onDownloadComplete)
+    }
+
+    private fun download(url: String) {
+
+    }
+
+    private suspend fun downloadFile(url: String) {
+        Log.i("result", url)
+        val title = URLUtil.guessFileName(url, null, null)
+        Log.i("result", title)
+        val request = DownloadManager
+            .Request(Uri.parse(url))
+            .setTitle(title)
+            .setDescription("Baixando aplicativo...")
+            .addRequestHeader("cookie", CookieManager.getInstance().getCookie(url))
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, title)
+
+        Log.i("result", request.toString())
+        val downloadManager = context?.getSystemService(DownloadManager::class.java)
+        downloadId = downloadManager?.enqueue(request)
+        withContext(Dispatchers.Main) {
+            Toast.makeText(requireContext(), "Iniciando Download", Toast.LENGTH_SHORT).show()
         }
-        else if (isDirectToTV() && Build.VERSION.SDK_INT >= 33) {
+    }
+
+
+    private fun requestManagePermission() {
+        if (isDirectToTV() && Build.VERSION.SDK_INT <= 32) {
+            requestRuntimePermissions()
+        } else if (isDirectToTV() && Build.VERSION.SDK_INT >= 33) {
             if (!Environment.isExternalStorageManager()) {
                 AlertDialog.Builder(requireContext()).setTitle("Permissão necessária")
                     .setMessage("Precisa de acesso ao armazenamento interno").setPositiveButton(
@@ -89,8 +146,7 @@ class DownloadFragment : Fragment() {
                         }
                     }.create().show()
             }
-        }
-        else if (Build.VERSION.SDK_INT >= 30) {
+        } else if (Build.VERSION.SDK_INT >= 30) {
             if (!Environment.isExternalStorageManager()) {
                 AlertDialog.Builder(requireContext()).setTitle("Permissão necessária")
                     .setMessage("Precisa de acesso ao armazenamento interno").setPositiveButton(
@@ -148,25 +204,26 @@ class DownloadFragment : Fragment() {
     }
 
     private fun isDirectToTV(): Boolean {
-        return (requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK )
+        return (requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
                 || (requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)))
     }
 
-    private suspend fun getDownloadLink(code: Int) {
-        val result: String
+    private suspend fun getDownloadLink(code: Int): String? {
         val retorno: Response<br.dev.saed.silverdownloader.model.Url>?
         try {
             val linkAPI = retrofit.create(LinkAPI::class.java)
             retorno = linkAPI.getUrl(code)
             if (retorno.isSuccessful) {
-                result = retorno.body()?.link.toString()
-                withContext(Dispatchers.Main) {
+                return retorno.body()?.link.toString()
+
+                /*withContext(Dispatchers.Main) {
                     binding.editCodigo.setText(result)
-                }
+                }*/
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        return null
     }
 
 

@@ -29,4 +29,8 @@ class LinkController {
     fun getAllLinks(): ResponseEntity<MutableIterable<Link>> {
         return ResponseEntity.ok().body(linkRepository.findAll())
     }
+    @DeleteMapping
+    fun deleteLink(id: Int) {
+        linkRepository.deleteById(id)
+    }
 }
